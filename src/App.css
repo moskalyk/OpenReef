@@ -36,3 +36,26 @@
     transform: rotate(360deg);
   }
 }
+
+
+.login{
+  padding: 20px;
+  position: fixed;
+  right: 20px;
+  top: 20px;
+  color: white;
+  width: 10%;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 15px;
+  background: hsl(206 100% 50%);
+  border: 0px;
+  box-shadow: 8px 8px 2px 1px rgba(0, 0, 255, .2);
+  cursor: pointer;
+}
+
+.fish {
+  transition: 4s;
+}
