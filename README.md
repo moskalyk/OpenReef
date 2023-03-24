@@ -1,4 +1,5 @@
 # OpenReef
+[demo](https://royal-hill-2588.on.fleek.co/)
 
 Openreef is an aquarium game, where you score points when fish are fed which can be embedded in any react application, like a marketplace. There are 2 fish in the aquarium: one representing USDC and the other Polygon. The more tokens you have in your wallet, the faster the fish move. You can select on the aquarium to drop food, or wait to have food dropped atomatically every 4 seconds.
 
