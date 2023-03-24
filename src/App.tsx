@@ -80,13 +80,13 @@ function App() {
     const balance = await indexer.getEtherBalance({
       accountAddress: address,
     })
-      
+    
     const pace: any = {
       polygon: 0,
       usdc: 0 
     }
 
-    // token balance store
+    // token balance store, can be extended to multiple tokens
     const ownerBalance = {
       usdc: 0
     }
@@ -101,10 +101,10 @@ function App() {
 
     pace.polygon = Number((BigInt(balance!.balance!.balanceWei)/BigInt(10e18))) / Number(BigInt(BigInt(balance.balance.balanceWei)/BigInt(10e18) + BigInt(ownerBalance.usdc)/BigInt(1e5)))
     pace.usdc = Number(BigInt(ownerBalance.usdc)/BigInt(1e5)) / Number(BigInt(BigInt(balance.balance.balanceWei)/BigInt(10e18) + BigInt(ownerBalance.usdc)/BigInt(1e5)))
-
+    
     setFishPositions([
-      { x: 50, y: 50, pace: Math.max(Number(pace.polygon)*5, 7) },
-      { x: 250, y: 250, pace: Math.max(Number(pace.polygon)*5, 7) },
+      { x: 50, y: 50, pace: Math.min(Number(pace.polygon)*5, 7) },
+      { x: 250, y: 250, pace: Math.min(Number(pace.usdc)*5, 7) },
     ])
   }
 
