@@ -1,17 +1,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-
-import angelFish from './angel_fish.png'
-import octopus from './mr_octopus.png'
-import seaHorse from './sea_horse.png'
-
 import './App.css';
 import {sequence} from '0xsequence'
 
 import { SequenceIndexerClient } from '@0xsequence/indexer'
 
 const indexer = new SequenceIndexerClient('https://polygon-indexer.sequence.app')
-
 
 function App() {
   const [score, setScore] = useState(0);
@@ -21,16 +15,13 @@ function App() {
     { x: 50, y: 50, pace: 1 },
     { x: 250, y: 250, pace: 1 },
   ]);
-
   const [address, setAddress] = React.useState<any>(null)
 
   const gameBoardRef: any = useRef();
 
   useEffect(() => {
-    console.log('trigger')
     if(address){
       loadBalance()
-      // setInit(true)
     }
   }, [address])
 
@@ -78,6 +69,7 @@ function App() {
   };
 
   const loadBalance = async () => {
+
     // query Sequence Indexer for all token balances of the account on Polygon
     const tokenBalances = await indexer.getTokenBalances({
         accountAddress: address,
@@ -89,16 +81,13 @@ function App() {
       accountAddress: address,
     })
       
-    console.log('tokens in your account:', balance)
-    console.log('tokens in your account:', tokenBalances)
-
     const pace: any = {
       polygon: 0,
       usdc: 0 
     }
 
+    // token balance store
     const ownerBalance = {
-      polygon: 0,
       usdc: 0
     }
 
@@ -108,24 +97,15 @@ function App() {
         console.log(token)
         ownerBalance.usdc = token.balance
       }
-      // setBalance(Number(Number(token.balance) / 100000).toPrecision(3))
     })
-    console.log((BigInt(balance!.balance!.balanceWei)/BigInt(10e18)))
+
     pace.polygon = Number((BigInt(balance!.balance!.balanceWei)/BigInt(10e18))) / Number(BigInt(BigInt(balance.balance.balanceWei)/BigInt(10e18) + BigInt(ownerBalance.usdc)/BigInt(1e5)))
     pace.usdc = Number(BigInt(ownerBalance.usdc)/BigInt(1e5)) / Number(BigInt(BigInt(balance.balance.balanceWei)/BigInt(10e18) + BigInt(ownerBalance.usdc)/BigInt(1e5)))
-    console.log(Number(pace.polygon)*5)
-    console.log(Number(pace.usdc)*5)
-    console.log(pace.usdc)
-    console.log(pace.polygon)
-
-    console.log(BigInt(ownerBalance.usdc)/BigInt(1e5))
-    console.log(BigInt(BigInt(balance.balance.balanceWei)/BigInt(1e18) + BigInt(ownerBalance.usdc)/BigInt(1e5)))
 
     setFishPositions([
       { x: 50, y: 50, pace: Math.max(Number(pace.polygon)*5, 7) },
       { x: 250, y: 250, pace: Math.max(Number(pace.polygon)*5, 7) },
     ])
-    // console.log(balance!.balance!.balanceWei / (balance.balance.balanceWei + ownerBalance.usdc))
   }
 
   sequence.initWallet('polygon')
@@ -143,8 +123,6 @@ function App() {
     })
     setAddress(connectDetails.session?.accountAddress)
     setIsGameRunning(true)
-    console.log('user accepted connect?', connectDetails.connected)
-
     setFoodPosition(prevPos => {
       const newX = Math.floor(Math.random() * gameBoardRef!.current!.clientWidth);
       const newY = Math.floor(Math.random() * gameBoardRef!.current!.clientHeight);
@@ -154,8 +132,7 @@ function App() {
 
   return (
     <div>
-
-<button className="login" onClick={() => login()}>{address ? address.slice(0,6)+'...' : 'login'}</button>
+      <button className="login" onClick={() => login()}>{address ? address.slice(0,6)+'...' : 'login'}</button>
       <h1>Fish Food Game</h1>
       <p>Score: {score}</p>
       <div
@@ -171,18 +148,6 @@ function App() {
             width: '10px',
             height: '10px',
           }} id='food'>🟓</p>
-
-          // <div
-          //   style={{
-          //     position: 'absolute',
-          //     top: foodPosition.y - 25,
-          //     left: foodPosition.x - 25,
-          //     width: '50px',
-          //     height: '50px',
-          //     backgroundColor: 'orange',
-          //     borderRadius: '50%',
-          //   }}
-          // />
         )}
         {fishPositions.map((fishPosition, index) => (
           <div
@@ -201,81 +166,5 @@ function App() {
       </div>
   )
 }
-
-// function App() {
-
-//   const [address, setAddress] = React.useState<any>(null)
-//   const [mouseX, setMouseX] = React.useState(null)
-//   const [mouseY, setMouseY] = React.useState(null)
-//   const [clickAvailability, setClickAvailability] = React.useState<boolean>(true)
-//   const []
-//   React.useEffect(() => {
-//     let interval = setInterval(() => {
-//       console.log('swimming...')
-//       document.getElementById('angel-fish')!.style.webkitTransform = "translate3d("+window.innerWidth/2*(Math.random() < 0.5 ? -1 * Math.random() : 1 * Math.random())+"px,"+ window.innerHeight*(Math.random() < 0.5 ? -1 * Math.random() : 1 * Math.random()) + "px, 0px)"
-//       document.getElementById('seahorse')!.style.webkitTransform = "translate3d("+window.innerWidth/2*(Math.random() < 0.5 ? -1 * Math.random() : 1 * Math.random())+"px,"+ window.innerHeight*(Math.random() < 0.5 ? -1 * Math.random() : 1 * Math.random()) + "px, 0px)"
-//       document.getElementById('mr-octopus')!.style.webkitTransform = "translate3d("+window.innerWidth/2*(Math.random() < 0.5 ? -1 * Math.random() : 1 * Math.random())+"px,"+ window.innerHeight*(Math.random() < 0.5 ? -1 * Math.random() : 1 * Math.random()) + "px, 0px)"
-//     }, 7000)
-//     let pace = 100
-//     let fall = setInterval(() => {
-//       setClickAvailability(false)
-//       pace = pace - 1
-//       console.log((mouseY! - pace))
-//       console.log(mouseX)
-//       document.getElementById('food')!.style.webkitTransform = "translate3d("+(mouseX!-701)+"px,"+ (mouseY!-170 - pace) +"px, 0px)"
-//       if()
-//       if(mouseY!+100-pace > window.innerHeight) {
-//         clearInterval(fall)
-//         setClickAvailability(true)
-//       }
-//     },10)
-//     return () => {
-//       clearInterval(interval)
-//       clearInterval(fall)
-//     }
-//   }, [mouseX, mouseY])
-
-//   function printMousePos(event: any) {
-//     // document.body.textContent =
-//     //   "clientX: " + event.clientX +
-//     //   " - clientY: " + event.clientY;
-      
-//       console.log(event.clientY, event.clientX)
-//       if(clickAvailability){
-
-//       setMouseY(event.clientY)
-//       setMouseX(event.clientX)
-//       setClickAvailability(false)
-//     }    
-//   }
-  
-//   document.addEventListener("click", printMousePos);
-
-//   sequence.initWallet('polygon')
-//   const login = async () => {
-//     const wallet = await sequence.getWallet()
-//     const connectDetails = await wallet.connect({
-//       app: 'OpenReef',
-//       authorize: true,
-//       // And pass settings if you would like to customize further
-//       settings: {
-//         theme: "blue",
-//         bannerUrl: "https://bafkreiemxvi6sorur3bqjyoro2z2hybtgiffzsaycyd2k3rxe7vcrzb3ia.ipfs.nftstorage.link/",  // 3:1 aspect ratio, 1200x400 works best
-//       }
-//     })
-//     setAddress(connectDetails.session?.accountAddress)
-//     console.log('user accepted connect?', connectDetails.connected)
-//   }
-//   return (
-//     <div className="App">
-//       <button className="login" onClick={() => login()}>{address ? address.slice(0,6)+'...' : 'login'}</button>
-//       {/* <img className="fish" id="angel-fish" width="17%" src={angelFish} /> */}
-//       <img className="fish" id="mr-octopus" width="17%" src={octopus} />
-//       <img className="fish" id="seahorse" width="17%" src={seaHorse} />
-//       <p id='food'>🟓</p>
-//       <p className="fish" id="angel-fish">🐟</p>
-//     </div>
-//   );
-// }
 
 export default App;
