@@ -56,6 +56,36 @@
   cursor: pointer;
 }
 
+.buy-button {
+  padding: 10px;
+  color: white;
+  width: 140px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 15px;
+  background: hsl(206 100% 50%);
+  border: 0px;
+  box-shadow: 8px 8px 2px 1px rgba(0, 0, 255, .2);
+  cursor: pointer;
+}
+
+.buy-button:hover {
+  padding: 10px;
+  color: white;
+  width: 140px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 15px;
+  background: hsl(206 100% 50%);
+  border: 0px;
+  box-shadow: 4px 4px 2px 1px rgba(0, 0, 255, .2);
+  cursor: pointer;
+}
+
 .fish {
   transition: 4s;
   font-size: 40px;

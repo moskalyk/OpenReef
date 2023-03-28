@@ -1,11 +1,17 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
-import {sequence} from '0xsequence'
+import { ethers } from 'ethers'
+import { sequence } from '0xsequence'
 
 import { SequenceIndexerClient } from '@0xsequence/indexer'
 
-const indexer = new SequenceIndexerClient('https://polygon-indexer.sequence.app')
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+
+const indexer = new SequenceIndexerClient('https://mumbai-indexer.sequence.app')
 
 function App() {
   const [score, setScore] = useState(0);
@@ -16,6 +22,9 @@ function App() {
     { x: 250, y: 250, pace: 1 },
   ]);
   const [address, setAddress] = React.useState<any>(null)
+  const [joyBalance, setJoyBalance] = useState<any>(0)
+  const [goldfishBalance, setGoldfishBalance] = useState<any>(0)
+  const [parrotFishBalance, setParrotFishBalance] = useState<any>(0)
 
   const gameBoardRef: any = useRef();
 
@@ -97,6 +106,7 @@ function App() {
         console.log(token)
         ownerBalance.usdc = token.balance
       }
+
     })
 
     pace.polygon = Number((BigInt(balance!.balance!.balanceWei)/BigInt(10e18))) / Number(BigInt(BigInt(balance.balance.balanceWei)/BigInt(10e18) + BigInt(ownerBalance.usdc)/BigInt(1e5)))
@@ -108,13 +118,14 @@ function App() {
     ])
   }
 
-  sequence.initWallet('polygon')
+  sequence.initWallet('mumbai')
 
   const login = async () => {
     const wallet = await sequence.getWallet()
     const connectDetails = await wallet.connect({
       app: 'OpenReef',
       authorize: true,
+      networkId: 80001,
       // And pass settings if you would like to customize further
       settings: {
         theme: "blue",
@@ -130,40 +141,266 @@ function App() {
     });
   }
 
+  React.useEffect(() => {
+    setBalances()
+  }, [address])
+
+  const setBalances = async () => {
+    if(address){
+
+      const tokenBalances = await indexer.getTokenBalances({
+          accountAddress: address,
+          includeMetadata: true
+      })
+
+      console.log(tokenBalances)
+
+      tokenBalances.balances.map((token: any) => {
+        // joy balance
+        if(token.contractAddress == "0x806ef45640fbd6c6e8f977ce3f495234b4a05f5f") {
+          setJoyBalance(Number(BigInt(token.balance)/BigInt(1e18)))
+        }
+        // goldfish balance
+        if(token.contractAddress == "0xde5f2998644824f190a4b7567e403710640a11f3") {
+          console.log(token)
+          setGoldfishBalance(token.balance)
+        }
+        // parrotfish balance
+        console.log(token.contractAddress == '0xD7158f6e9579784e7e3B031FD04B793e76e7f920')
+        if(token.contractAddress == "0xd7158f6e9579784e7e3b031fd04b793e76e7f920"){
+          console.log(token)
+          setParrotFishBalance(token.balance)
+        }
+      })
+    }
+  }
+
+  const claimERC20 = async () => {
+    const joyContractAddress = '0x806EF45640fbD6C6E8f977cE3f495234B4a05f5f'
+
+    const wallet = await sequence.getWallet()
+
+    // Craft your transaction
+    const erc721Interface = new ethers.utils.Interface([
+      'function claim() public returns(bool)'
+    ])
+
+    const data = erc721Interface.encodeFunctionData(
+      'claim', []
+    )
+
+    const txn = {
+      to: joyContractAddress,
+      data: data
+    }
+
+    const signer = wallet.getSigner()
+
+    const res = await signer.sendTransaction(txn)
+    console.log(res)
+    // trigger get balance
+    setTimeout(() => {
+      setBalances()
+    },5000)
+  }
+
+  const claimERC721 = async () => {
+    const aquariumERC721ContractAddress = '0xDe5f2998644824F190A4b7567e403710640a11F3'
+    const joyContractAddress = '0x806EF45640fbD6C6E8f977cE3f495234B4a05f5f'
+
+    const wallet = await sequence.getWallet()
+
+    // Craft your transaction
+    const erc20Interface = new ethers.utils.Interface([
+      'function approve(address spender, uint256 amount) public returns (bool)'
+    ])
+
+    const data20 = erc20Interface.encodeFunctionData(
+      'approve', [aquariumERC721ContractAddress, "100000000000000000000"]
+    )
+
+    // Craft your transaction
+    const erc721Interface = new ethers.utils.Interface([
+      'function claimNFT() public returns(bool)'
+    ])
+
+    const data = erc721Interface.encodeFunctionData(
+      'claimNFT', []
+    )
+
+    const txn1 = {
+      to: joyContractAddress,
+      data: data20
+    }
+
+    const txn2 = {
+      to: aquariumERC721ContractAddress,
+      data: data
+    }
+
+    const signer = wallet.getSigner()
+
+    const res = await signer.sendTransactionBatch([txn1, txn2])
+    console.log(res)
+    // trigger get balance
+    setTimeout(() => {
+      setBalances()
+    },5000)
+  }
+
+  const claimERC1155 = async (claimType: string) => {
+    console.log('claiming')
+    let id;
+    switch(claimType){
+      case 'rainbow':
+        id = 0;
+        break;
+      case 'cyan':
+        id = 1;
+        break;
+      case 'pink':
+        id = 2;
+        break;
+      case 'blue':
+        id = 3;
+        break;
+    }
+
+    console.log(id)
+
+    const aquarium1155ContractAddress = '0xD7158f6e9579784e7e3B031FD04B793e76e7f920'
+    const joyContractAddress = '0x806EF45640fbD6C6E8f977cE3f495234B4a05f5f'
+
+    const wallet = await sequence.getWallet()
+
+    // Craft your transaction
+    const erc20Interface = new ethers.utils.Interface([
+      'function approve(address spender, uint256 amount) public returns (bool)'
+    ])
+
+    const data20 = erc20Interface.encodeFunctionData(
+      'approve', [aquarium1155ContractAddress, "200000000000000000000"]
+    )
+
+    // Craft your transaction
+    const erc1155Interface = new ethers.utils.Interface([
+      'function claim(address _address, uint _id) public returns (bool)'
+    ])
+    console.log(address)
+    console.log(id)
+
+    const data = erc1155Interface.encodeFunctionData(
+      'claim', [address, id]
+    )
+
+    const txn1 = {
+      to: joyContractAddress,
+      data: data20
+    }
+
+    const txn2 = {
+      to: aquarium1155ContractAddress,
+      data: data
+    }
+
+    const signer = wallet.getSigner()
+
+    const res = await signer.sendTransactionBatch([txn1, txn2])
+    console.log(res)
+    // trigger get balance
+    setTimeout(() => {
+      setBalances()
+    },3000)
+
+  }
+
   return (
     <div>
-      <button className="login" onClick={() => login()}>{address ? address.slice(0,6)+'...' : 'login'}</button>
-      <h1>Fish Food Game</h1>
-      <p>Score: {score}</p>
-      <div
-        ref={gameBoardRef}
-        style={{ height: '500px', width: '500px', backgroundColor: '#ADD8E6', position: 'relative' }}
-        onClick={handleGameBoardClick}
-      >
-        {foodPosition.x !== 0 && (
-          <p style={{
-            position: 'absolute',
-            top: foodPosition.y - 25,
-            left: foodPosition.x - 25,
-            width: '10px',
-            height: '10px',
-          }} id='food'>🟓</p>
-        )}
-        {fishPositions.map((fishPosition, index) => (
-          <div
-            key={index}
-            style={{
-              position: 'absolute',
-              top: fishPosition.y - 25,
-              left: fishPosition.x - 25,
-              fontSize: '50px',
-            }}
-          >
-            🐟
-          </div>
-        ))}
-      </div>
-      </div>
+      <Container>
+        <Row>
+          <Col>
+            <button className="login" onClick={() => login()}>{address ? address.slice(0,6)+'...' : 'login'}</button>
+            <h1>Fish Food Game</h1>
+            <p>Score: {score}</p>
+            <div
+              ref={gameBoardRef}
+              style={{ height: '500px', width: '500px', backgroundColor: '#ADD8E6', position: 'relative' }}
+              onClick={handleGameBoardClick}
+            >
+              {foodPosition.x !== 0 && (
+                <p style={{
+                  position: 'absolute',
+                  top: foodPosition.y - 25,
+                  left: foodPosition.x - 25,
+                  width: '10px',
+                  height: '10px',
+                }} id='food'>🟓</p>
+              )}
+              {fishPositions.map((fishPosition, index) => (
+                <div
+                  key={index}
+                  style={{
+                    position: 'absolute',
+                    top: fishPosition.y - 25,
+                    left: fishPosition.x - 25,
+                    fontSize: '50px',
+                  }}
+                >
+                  🐟
+                </div>
+              ))}
+            </div>
+          </Col>
+          <Col>
+          <br/>
+          <br/>
+          <br/>
+          <br/>
+            <Row>
+              <Col>Joy Balance: {joyBalance}</Col>
+              <Col>Goldfish Balance: {goldfishBalance}</Col>
+              <Col>Parrotfish Balance: {parrotFishBalance}</Col>
+            </Row>
+            <Row>
+              <Col>
+                <br/>
+                <p>ERC20</p>
+                <button className='buy-button' onClick={() => claimERC20()}>claim JOY faucet</button>
+                <br/>
+              </Col>
+            <hr/>
+            </Row>
+            <Row>
+            <Row>
+
+              <Col>
+                  <br/>
+                  <p>ERC721</p>
+                  <button className='buy-button' onClick={() => claimERC721()}>buy goldfish</button>
+                  <br/>
+              </Col>
+            </Row>
+            <hr/>
+
+              <Col>
+                <p>ERC1155</p>
+                <button className='buy-button' onClick={()=> claimERC1155('rainbow')}>buy rainbow parrotfish</button>
+                <br/>
+                <button className='buy-button' onClick={()=> claimERC1155('cyan')}>buy cyan parrotfish</button>
+
+              </Col>
+              <Col>
+                <p style={{color: 'white'}}>ERC1155</p>
+                <button className='buy-button' onClick={()=> claimERC1155('pink')}>buy pink parrotfish</button>
+                <br/>
+
+                <button className='buy-button' onClick={()=> claimERC1155('blue')}>buy blue parrotfish</button>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+      </Container>
+    </div>
   )
 }
 
