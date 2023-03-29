@@ -106,7 +106,7 @@ function App() {
     // query Sequence Indexer for all token balances of the account on Polygon
     const tokenBalancesERC1155 = await indexer.getTokenBalances({
         accountAddress: address,
-        contractAddress: '0xd7158f6e9579784e7e3b031fd04b793e76e7f920',
+        contractAddress: '0x5d3ff8b04961797407a32d3fbab8a1f53db885e3',
         includeMetadata: true
     })
 
@@ -118,7 +118,7 @@ function App() {
 
     const tokenBalancesERC721 = await indexer.getTokenBalances({
         accountAddress: address,
-        contractAddress: '0xDe5f2998644824F190A4b7567e403710640a11F3',
+        contractAddress: '0xc42ae8452f5057212a7c313589df6c9b83660aa3',
         includeMetadata: true
     })
 
@@ -170,17 +170,17 @@ function App() {
 
       tokenBalances.balances.map((token: any) => {
         // joy balance
-        if(token.contractAddress == "0x806ef45640fbd6c6e8f977ce3f495234b4a05f5f") {
+        if(token.contractAddress == "0xa1767a6c3de0c07712bacd48423d5aad74081237") {
           setJoyBalance(Number(BigInt(token.balance)/BigInt(1e18)))
         }
         // goldfish balance
-        if(token.contractAddress == "0xde5f2998644824f190a4b7567e403710640a11f3") {
+        if(token.contractAddress == "0xc42ae8452f5057212a7c313589df6c9b83660aa3") {
           console.log(token)
           setGoldfishBalance(token.balance)
         }
         // parrotfish balance
-        console.log(token.contractAddress == '0xD7158f6e9579784e7e3B031FD04B793e76e7f920')
-        if(token.contractAddress == "0xd7158f6e9579784e7e3b031fd04b793e76e7f920"){
+        // console.log(token.contractAddress == '0x5d3ff8b04961797407a32d3fbab8a1f53db885e3')
+        if(token.contractAddress == "0x5d3ff8b04961797407a32d3fbab8a1f53db885e3"){
           console.log(token)
           setParrotFishBalance(token.balance)
         }
@@ -189,7 +189,7 @@ function App() {
   }
 
   const claimERC20 = async () => {
-    const joyContractAddress = '0x806EF45640fbD6C6E8f977cE3f495234B4a05f5f'
+    const joyContractAddress = '0xA1767A6C3dE0c07712bAcD48423D5Aad74081237'
 
     const wallet = await sequence.getWallet()
 
@@ -210,16 +210,15 @@ function App() {
     const signer = wallet.getSigner()
 
     const res = await signer.sendTransaction(txn)
-    console.log(res)
-    // trigger get balance
+
     setTimeout(() => {
       setBalances()
     },5000)
   }
 
   const claimERC721 = async () => {
-    const aquariumERC721ContractAddress = '0xDe5f2998644824F190A4b7567e403710640a11F3'
-    const joyContractAddress = '0x806EF45640fbD6C6E8f977cE3f495234B4a05f5f'
+    const aquariumERC721ContractAddress = '0xc42ae8452f5057212a7c313589df6c9b83660aa3'
+    const joyContractAddress = '0xA1767A6C3dE0c07712bAcD48423D5Aad74081237'
 
     const wallet = await sequence.getWallet()
 
@@ -281,8 +280,8 @@ function App() {
         break;
     }
 
-    const aquarium1155ContractAddress = '0xD7158f6e9579784e7e3B031FD04B793e76e7f920'
-    const joyContractAddress = '0x806EF45640fbD6C6E8f977cE3f495234B4a05f5f'
+    const aquarium1155ContractAddress = '0x5d3ff8b04961797407a32d3fbab8a1f53db885e3'
+    const joyContractAddress = '0xA1767A6C3dE0c07712bAcD48423D5Aad74081237'
 
     const wallet = await sequence.getWallet()
 
@@ -406,6 +405,8 @@ function App() {
           <br/>
           <br/>
           <br/>
+          {!address ? null:
+          <>
             <Row>
               <Col>Joy Balance: {joyBalance}</Col>
               <Col>Goldfish Balance: {goldfishBalance}</Col>
@@ -425,7 +426,7 @@ function App() {
 
               <Col>
                   <br/>
-                  <p>ERC721</p>
+                  <p>ERC721 - 10 JOY</p>
                   <button className='buy-button' onClick={() => claimERC721()}>buy goldfish</button>
                   <br/>
               </Col>
@@ -433,7 +434,7 @@ function App() {
             <hr/>
 
               <Col>
-                <p>ERC1155</p>
+                <p>ERC1155 - 20 JOY</p>
                 <button className='buy-button' onClick={()=> claimERC1155('rainbow')}>buy rainbow parrotfish</button>
                 <br/>
                 <button className='buy-button' onClick={()=> claimERC1155('cyan')}>buy cyan parrotfish</button>
@@ -447,6 +448,8 @@ function App() {
                 <button className='buy-button' onClick={()=> claimERC1155('blue')}>buy blue parrotfish</button>
               </Col>
             </Row>
+          </>
+          }
           </Col>
         </Row>
       </Container>
