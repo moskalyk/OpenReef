@@ -34,7 +34,10 @@ function App() {
   const gameBoardRef: any = useRef();
 
   useEffect(() => {
-    if(address){
+    console.log(init)
+    console.log()
+    if((!init) && address){
+      setInit(true)
       loadBalance()
     }
   }, [address, init])
@@ -110,9 +113,12 @@ function App() {
         includeMetadata: true
     })
 
+    setParrotFishPositions([])
+    setGoldfishPositions([])
 
     tokenBalancesERC1155.balances.map((token) => {
       console.log(token)
+
       setParrotFishPositions((prev: any ) => [...prev, { x: Math.random()*500, y: Math.random()*500, pace: 1, tokenID: token.tokenID}])
     })
 
@@ -123,6 +129,7 @@ function App() {
     })
 
     tokenBalancesERC721.balances.map(() => {
+
       setGoldfishPositions((prev: any ) => [...prev, { x: Math.random()*500, y: Math.random()*500, pace: 4 }])
     })
 
@@ -143,6 +150,7 @@ function App() {
     })
     setAddress(connectDetails.session?.accountAddress)
     setIsGameRunning(true)
+    setInit(false)
     setFoodPosition(prevPos => {
       const newX = Math.floor(Math.random() * gameBoardRef!.current!.clientWidth);
       const newY = Math.floor(Math.random() * gameBoardRef!.current!.clientHeight);
@@ -151,9 +159,9 @@ function App() {
   }
 
   React.useEffect(() => {
-    if(!init || address){
-      setBalances()
+    if(!init){
       setInit(true)
+      setBalances()
     }
 
   }, [address, init])
@@ -212,7 +220,7 @@ function App() {
     const res = await signer.sendTransaction(txn)
 
     setTimeout(() => {
-      setBalances()
+      setInit(false)
     },5000)
   }
 
@@ -256,9 +264,7 @@ function App() {
     console.log(res)
     // trigger get balance
     setTimeout(() => {
-      setBalances()
       setInit(false)
-      window.location.reload()
     },3000)
   }
 
@@ -319,9 +325,7 @@ function App() {
     console.log(res)
     // trigger get balance
     setTimeout(() => {
-      setBalances()
       setInit(false)
-      window.location.reload()
     },3000)
 
   }
