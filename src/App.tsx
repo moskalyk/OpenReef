@@ -11,28 +11,45 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
+import goldfish from './assets/4.png'
+import pf_rainbow from './assets/0.png'
+import pf_cyan from './assets/1.png'
+import pf_pink from './assets/2.png'
+import pf_blue from './assets/3.png'
+
 const indexer = new SequenceIndexerClient('https://mumbai-indexer.sequence.app')
 
 function App() {
   const [score, setScore] = useState(0);
   const [isGameRunning, setIsGameRunning] = useState(false);
   const [foodPosition, setFoodPosition] = useState({ x: 0, y: 0 });
-  const [fishPositions, setFishPositions] = useState([
-    { x: 50, y: 50, pace: 1 },
-    { x: 250, y: 250, pace: 1 },
+  const [goldfishPositions, setGoldfishPositions] = useState<any>([
+  ])
+
+  const [parrotFishPositions, setParrotFishPositions] = useState<any>([
+    // { x: 50, y: 50, pace: 1 },
+    // { x: 250, y: 250, pace: 1 },
   ]);
+
+  // const [fishPositions, setFishPositions] = useState([
+  //   { x: 50, y: 50, pace: 1 },
+  //   { x: 250, y: 250, pace: 1 },
+  // ]);
   const [address, setAddress] = React.useState<any>(null)
   const [joyBalance, setJoyBalance] = useState<any>(0)
   const [goldfishBalance, setGoldfishBalance] = useState<any>(0)
   const [parrotFishBalance, setParrotFishBalance] = useState<any>(0)
+  const [init, setInit] = useState<boolean>(false)
 
   const gameBoardRef: any = useRef();
 
   useEffect(() => {
     if(address){
+      // setGoldfishPositions([])
+      // setParrotFishPositions([])
       loadBalance()
     }
-  }, [address])
+  }, [address, init])
 
   useEffect(() => {
     if (isGameRunning) {
@@ -50,8 +67,8 @@ function App() {
   useEffect(() => {
     if (isGameRunning) {
       const intervalId = setInterval(() => {
-        setFishPositions(prevPositions => {
-          const newPositions = prevPositions.map(prevPos => {
+        setGoldfishPositions((prevPositions: any) => {
+          const newPositions = prevPositions.map((prevPos: any) => {
             const dx = foodPosition.x - prevPos.x;
             const dy = foodPosition.y - prevPos.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
@@ -67,6 +84,25 @@ function App() {
           });
           return newPositions;
         });
+
+        setParrotFishPositions((prevPositions: any) => {
+          const newPositions = prevPositions.map((prevPos: any) => {
+            const dx = foodPosition.x - prevPos.x;
+            const dy = foodPosition.y - prevPos.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance <= prevPos.pace && foodPosition.x != 0) {
+              setScore(prevScore => prevScore + 1);
+              setFoodPosition({ x: 0, y: 0 });
+              return prevPos;
+            } else {
+              const newX = prevPos.x + (dx / distance) * prevPos.pace;
+              const newY = prevPos.y + (dy / distance) * prevPos.pace;
+              return { x: newX, y: newY, pace: prevPos.pace, tokenID: prevPos.tokenID };
+            }
+          });
+          return newPositions;
+        });
+
       }, 50);
       return () => clearInterval(intervalId);
     }
@@ -80,15 +116,36 @@ function App() {
   const loadBalance = async () => {
 
     // query Sequence Indexer for all token balances of the account on Polygon
-    const tokenBalances = await indexer.getTokenBalances({
+    const tokenBalancesERC1155 = await indexer.getTokenBalances({
         accountAddress: address,
+        contractAddress: '0xd7158f6e9579784e7e3b031fd04b793e76e7f920',
         includeMetadata: true
     })
 
-    // query Sequence Indexer for the MATIC balance on Polygon
-    const balance = await indexer.getEtherBalance({
-      accountAddress: address,
+    console.log(tokenBalancesERC1155)
+
+    tokenBalancesERC1155.balances.map((token) => {
+      console.log(token)
+      setParrotFishPositions((prev: any ) => [...prev, { x: Math.random()*500, y: Math.random()*500, pace: 1, tokenID: token.tokenID}])
     })
+
+    const tokenBalancesERC721 = await indexer.getTokenBalances({
+        accountAddress: address,
+        contractAddress: '0xDe5f2998644824F190A4b7567e403710640a11F3',
+        includeMetadata: true
+    })
+
+  console.log(tokenBalancesERC721)
+
+  tokenBalancesERC721.balances.map(() => {
+    setGoldfishPositions((prev: any ) => [...prev, { x: Math.random()*500, y: Math.random()*500, pace: 4 }])
+  })
+
+
+    // // query Sequence Indexer for the MATIC balance on Polygon
+    // const balance = await indexer.getEtherBalance({
+    //   accountAddress: address,
+    // })
     
     const pace: any = {
       polygon: 0,
@@ -100,22 +157,22 @@ function App() {
       usdc: 0
     }
 
-    tokenBalances.balances.map((token: any) => {
-      if(token.contractAddress == "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"){
-        console.log('usdc')
-        console.log(token)
-        ownerBalance.usdc = token.balance
-      }
-
-    })
-
-    pace.polygon = Number((BigInt(balance!.balance!.balanceWei)/BigInt(10e18))) / Number(BigInt(BigInt(balance.balance.balanceWei)/BigInt(10e18) + BigInt(ownerBalance.usdc)/BigInt(1e5)))
-    pace.usdc = Number(BigInt(ownerBalance.usdc)/BigInt(1e5)) / Number(BigInt(BigInt(balance.balance.balanceWei)/BigInt(10e18) + BigInt(ownerBalance.usdc)/BigInt(1e5)))
+    // tokenBalances.balances.map((token: any) => {
+    //   if(token.contractAddress == "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"){
+    //     console.log('usdc')
+    //     console.log(token)
+    //     ownerBalance.usdc = token.balance
+    //   }
+    // })
     
-    setFishPositions([
-      { x: 50, y: 50, pace: Math.min(Number(pace.polygon)*5, 7) },
-      { x: 250, y: 250, pace: Math.min(Number(pace.usdc)*5, 7) },
-    ])
+    // pace.polygon = Number((BigInt(balance!.balance!.balanceWei)/BigInt(10e18))) / Number(BigInt(BigInt(balance.balance.balanceWei)/BigInt(10e18) + BigInt(ownerBalance.usdc)/BigInt(1e5)))
+    // pace.usdc = Number(BigInt(ownerBalance.usdc)/BigInt(1e5)) / Number(BigInt(BigInt(balance.balance.balanceWei)/BigInt(10e18) + BigInt(ownerBalance.usdc)/BigInt(1e5)))
+    
+    // setGoldfishPositions()
+    // setFishPositions([
+    //   { x: 50, y: 50, pace: Math.min(Number(pace.polygon)*5, 7) },
+    //   { x: 250, y: 250, pace: Math.min(Number(pace.usdc)*5, 7) },
+    // ])
   }
 
   sequence.initWallet('mumbai')
@@ -142,8 +199,12 @@ function App() {
   }
 
   React.useEffect(() => {
-    setBalances()
-  }, [address])
+    if(!init || address){
+      setBalances()
+      setInit(true)
+    }
+
+  }, [address, init])
 
   const setBalances = async () => {
     if(address){
@@ -245,7 +306,9 @@ function App() {
     // trigger get balance
     setTimeout(() => {
       setBalances()
-    },5000)
+      setInit(false)
+      window.location.reload()
+    },3000)
   }
 
   const claimERC1155 = async (claimType: string) => {
@@ -310,9 +373,31 @@ function App() {
     // trigger get balance
     setTimeout(() => {
       setBalances()
+      setInit(false)
+      window.location.reload()
     },3000)
 
   }
+
+  const parrotFishConversion = (tokenID: any) => {
+    console.log(tokenID)
+    let fin;
+    switch(tokenID){
+    case '0':
+      fin = <img src={pf_rainbow} width={'60px'}/>
+      break;
+    case '1':
+      fin = <img src={pf_cyan} width={'60px'}/>
+      break;
+    case '2':
+      fin = <img src={pf_pink} width={'60px'}/>
+      break;
+    case '3':
+      fin = <img src={pf_blue} width={'60px'}/>
+      break;
+    }
+    return fin;
+  } 
 
   return (
     <div>
@@ -336,7 +421,24 @@ function App() {
                   height: '10px',
                 }} id='food'>🟓</p>
               )}
-              {fishPositions.map((fishPosition, index) => (
+
+              {goldfishPositions.map((fishPosition: any, index: number) => (
+                <div
+                  key={index}
+                  style={{
+                    position: 'absolute',
+                    top: fishPosition.y - 25,
+                    left: fishPosition.x - 25,
+                    width: '10px',
+                    height: '10px',
+                    fontSize: '50px',
+                  }}
+                >
+                  <img src={goldfish} width={'60px'}/>
+                </div>
+              ))}
+
+              {parrotFishPositions.map((fishPosition: any, index: number) => (
                 <div
                   key={index}
                   style={{
@@ -346,7 +448,7 @@ function App() {
                     fontSize: '50px',
                   }}
                 >
-                  🐟
+                  {parrotFishConversion(fishPosition.tokenID)}
                 </div>
               ))}
             </div>
