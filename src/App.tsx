@@ -23,18 +23,8 @@ function App() {
   const [score, setScore] = useState(0);
   const [isGameRunning, setIsGameRunning] = useState(false);
   const [foodPosition, setFoodPosition] = useState({ x: 0, y: 0 });
-  const [goldfishPositions, setGoldfishPositions] = useState<any>([
-  ])
-
-  const [parrotFishPositions, setParrotFishPositions] = useState<any>([
-    // { x: 50, y: 50, pace: 1 },
-    // { x: 250, y: 250, pace: 1 },
-  ]);
-
-  // const [fishPositions, setFishPositions] = useState([
-  //   { x: 50, y: 50, pace: 1 },
-  //   { x: 250, y: 250, pace: 1 },
-  // ]);
+  const [goldfishPositions, setGoldfishPositions] = useState<any>([])
+  const [parrotFishPositions, setParrotFishPositions] = useState<any>([]);
   const [address, setAddress] = React.useState<any>(null)
   const [joyBalance, setJoyBalance] = useState<any>(0)
   const [goldfishBalance, setGoldfishBalance] = useState<any>(0)
@@ -45,8 +35,6 @@ function App() {
 
   useEffect(() => {
     if(address){
-      // setGoldfishPositions([])
-      // setParrotFishPositions([])
       loadBalance()
     }
   }, [address, init])
@@ -122,7 +110,6 @@ function App() {
         includeMetadata: true
     })
 
-    console.log(tokenBalancesERC1155)
 
     tokenBalancesERC1155.balances.map((token) => {
       console.log(token)
@@ -135,44 +122,10 @@ function App() {
         includeMetadata: true
     })
 
-  console.log(tokenBalancesERC721)
+    tokenBalancesERC721.balances.map(() => {
+      setGoldfishPositions((prev: any ) => [...prev, { x: Math.random()*500, y: Math.random()*500, pace: 4 }])
+    })
 
-  tokenBalancesERC721.balances.map(() => {
-    setGoldfishPositions((prev: any ) => [...prev, { x: Math.random()*500, y: Math.random()*500, pace: 4 }])
-  })
-
-
-    // // query Sequence Indexer for the MATIC balance on Polygon
-    // const balance = await indexer.getEtherBalance({
-    //   accountAddress: address,
-    // })
-    
-    const pace: any = {
-      polygon: 0,
-      usdc: 0 
-    }
-
-    // token balance store, can be extended to multiple tokens
-    const ownerBalance = {
-      usdc: 0
-    }
-
-    // tokenBalances.balances.map((token: any) => {
-    //   if(token.contractAddress == "0x2791bca1f2de4661ed88a30c99a7a9449aa84174"){
-    //     console.log('usdc')
-    //     console.log(token)
-    //     ownerBalance.usdc = token.balance
-    //   }
-    // })
-    
-    // pace.polygon = Number((BigInt(balance!.balance!.balanceWei)/BigInt(10e18))) / Number(BigInt(BigInt(balance.balance.balanceWei)/BigInt(10e18) + BigInt(ownerBalance.usdc)/BigInt(1e5)))
-    // pace.usdc = Number(BigInt(ownerBalance.usdc)/BigInt(1e5)) / Number(BigInt(BigInt(balance.balance.balanceWei)/BigInt(10e18) + BigInt(ownerBalance.usdc)/BigInt(1e5)))
-    
-    // setGoldfishPositions()
-    // setFishPositions([
-    //   { x: 50, y: 50, pace: Math.min(Number(pace.polygon)*5, 7) },
-    //   { x: 250, y: 250, pace: Math.min(Number(pace.usdc)*5, 7) },
-    // ])
   }
 
   sequence.initWallet('mumbai')
@@ -183,7 +136,6 @@ function App() {
       app: 'OpenReef',
       authorize: true,
       networkId: 80001,
-      // And pass settings if you would like to customize further
       settings: {
         theme: "blue",
         bannerUrl: "https://bafkreiemxvi6sorur3bqjyoro2z2hybtgiffzsaycyd2k3rxe7vcrzb3ia.ipfs.nftstorage.link/",  // 3:1 aspect ratio, 1200x400 works best
@@ -329,8 +281,6 @@ function App() {
         break;
     }
 
-    console.log(id)
-
     const aquarium1155ContractAddress = '0xD7158f6e9579784e7e3B031FD04B793e76e7f920'
     const joyContractAddress = '0x806EF45640fbD6C6E8f977cE3f495234B4a05f5f'
 
@@ -349,8 +299,6 @@ function App() {
     const erc1155Interface = new ethers.utils.Interface([
       'function claim(address _address, uint _id) public returns (bool)'
     ])
-    console.log(address)
-    console.log(id)
 
     const data = erc1155Interface.encodeFunctionData(
       'claim', [address, id]
