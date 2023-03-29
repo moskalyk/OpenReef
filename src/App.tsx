@@ -119,7 +119,11 @@ function App() {
     tokenBalancesERC1155.balances.map((token) => {
       console.log(token)
 
-      setParrotFishPositions((prev: any ) => [...prev, { x: Math.random()*500, y: Math.random()*500, pace: 1, tokenID: token.tokenID}])
+      const tokenBalance = Number(token.balance)
+
+      for(let i = 0; i < tokenBalance; i++){
+        setParrotFishPositions((prev: any ) => [...prev, { x: Math.random()*500, y: Math.random()*500, pace: 1, tokenID: token.tokenID}])
+      }
     })
 
     const tokenBalancesERC721 = await indexer.getTokenBalances({
@@ -128,7 +132,8 @@ function App() {
         includeMetadata: true
     })
 
-    tokenBalancesERC721.balances.map(() => {
+    tokenBalancesERC721.balances.map((balance) => {
+
 
       setGoldfishPositions((prev: any ) => [...prev, { x: Math.random()*500, y: Math.random()*500, pace: 4 }])
     })
