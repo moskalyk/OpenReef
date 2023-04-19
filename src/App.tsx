@@ -100,7 +100,7 @@ function App() {
   }, [isGameRunning, foodPosition]);
 
   const handleGameBoardClick = (e: any) => {
-    const clickPosition = { x: e.clientX, y: e.clientY };
+    const clickPosition = { x: e.clientX-133, y: e.clientY -84};
     setFoodPosition(clickPosition);
   };
 
