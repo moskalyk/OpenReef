@@ -70,7 +70,7 @@ function App() {
             } else {
               const newX = prevPos.x + (dx / distance) * prevPos.pace;
               const newY = prevPos.y + (dy / distance) * prevPos.pace;
-              return { x: newX, y: newY, pace: prevPos.pace };
+              return { x: newX, y: newY, pace: prevPos.pace, image: prevPos.image };
             }
           });
           return newPositions;
@@ -88,7 +88,7 @@ function App() {
             } else {
               const newX = prevPos.x + (dx / distance) * prevPos.pace;
               const newY = prevPos.y + (dy / distance) * prevPos.pace;
-              return { x: newX, y: newY, pace: prevPos.pace, tokenID: prevPos.tokenID };
+              return { x: newX, y: newY, pace: prevPos.pace, tokenID: prevPos.tokenID, image: prevPos.image };
             }
           });
           return newPositions;
@@ -122,7 +122,8 @@ function App() {
       const tokenBalance = Number(token.balance)
 
       for(let i = 0; i < tokenBalance; i++){
-        setParrotFishPositions((prev: any ) => [...prev, { x: Math.random()*500, y: Math.random()*500, pace: 1, tokenID: token.tokenID}])
+        console.log(token.tokenMetadata!.image)
+        setParrotFishPositions((prev: any ) => [...prev, { x: Math.random()*500, y: Math.random()*500, pace: 1, tokenID: token.tokenID, image: token.tokenMetadata!.image}])
       }
     })
 
@@ -135,7 +136,7 @@ function App() {
     tokenBalancesERC721.balances.map((balance) => {
 
 
-      setGoldfishPositions((prev: any ) => [...prev, { x: Math.random()*500, y: Math.random()*500, pace: 4 }])
+      setGoldfishPositions((prev: any ) => [...prev, { x: Math.random()*500, y: Math.random()*500, pace: 4, image: balance.tokenMetadata!.image }])
     })
 
   }
@@ -335,26 +336,6 @@ function App() {
 
   }
 
-  const parrotFishConversion = (tokenID: any) => {
-    console.log(tokenID)
-    let fin;
-    switch(tokenID){
-    case '0':
-      fin = <img src={pf_rainbow} width={'60px'}/>
-      break;
-    case '1':
-      fin = <img src={pf_cyan} width={'60px'}/>
-      break;
-    case '2':
-      fin = <img src={pf_pink} width={'60px'}/>
-      break;
-    case '3':
-      fin = <img src={pf_blue} width={'60px'}/>
-      break;
-    }
-    return fin;
-  } 
-
   return (
     <div>
       <Container>
@@ -390,10 +371,9 @@ function App() {
                     fontSize: '50px',
                   }}
                 >
-                  <img src={goldfish} width={'60px'}/>
+                  <img src={fishPosition.image} width={'60px'}/>
                 </div>
               ))}
-
               {parrotFishPositions.map((fishPosition: any, index: number) => (
                 <div
                   key={index}
@@ -404,7 +384,7 @@ function App() {
                     fontSize: '50px',
                   }}
                 >
-                  {parrotFishConversion(fishPosition.tokenID)}
+                  <img src={fishPosition.image} width={'60px'}/>
                 </div>
               ))}
             </div>
