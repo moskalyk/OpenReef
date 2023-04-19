@@ -100,7 +100,7 @@ function App() {
   }, [isGameRunning, foodPosition]);
 
   const handleGameBoardClick = (e: any) => {
-    const clickPosition = { x: e.clientX-133, y: e.clientY -84};
+    const clickPosition = { x: e.clientX-64, y: e.clientY -84};
     setFoodPosition(clickPosition);
   };
 
@@ -117,12 +117,11 @@ function App() {
     setGoldfishPositions([])
 
     tokenBalancesERC1155.balances.map((token) => {
-      console.log(token)
 
       const tokenBalance = Number(token.balance)
 
       for(let i = 0; i < tokenBalance; i++){
-        console.log(token.tokenMetadata!.image)
+        const image = token.tokenMetadata!.image
         setParrotFishPositions((prev: any ) => [...prev, { x: Math.random()*500, y: Math.random()*500, pace: 1, tokenID: token.tokenID, image: token.tokenMetadata!.image}])
       }
     })
